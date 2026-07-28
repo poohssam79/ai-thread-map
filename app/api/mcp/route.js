@@ -43,7 +43,13 @@ const baseHandler = createMcpHandler(
           'ai_thread_map 계정에 텍스트 글을 Meta Threads API로 실제 발행한다. ' +
           '초안 DB가 없으므로 이 툴은 받은 text를 그대로, 즉시 발행한다 — 호출 전에 ' +
           '내용을 사람에게 보여주고 승인받은 뒤에만 호출할 것. ' +
-          'THREADS_USER_ID/THREADS_ACCESS_TOKEN 환경변수가 없으면 오류를 반환한다.',
+          'THREADS_USER_ID/THREADS_ACCESS_TOKEN 환경변수가 없으면 오류를 반환한다. ' +
+          '\n\n⚠️ 호출 전 필수 확인 (저장소 CONTENT_GUIDE.md 요약): ' +
+          '(1) 순수 정보나열형/백과사전 어투 금지 — 총정리형, 위트있는 한 줄, 또는 실제로 있었던 개인 서사만. ' +
+          '(2) 본문에 외부 링크 넣지 말 것, 해시태그는 2~3개까지. ' +
+          '(3) 지어낸 경험담·숫자 금지, 검증 가능한 사실만. ' +
+          '(4) 첫 줄에 숫자·의외성·질문 중 하나를 넣을 것. ' +
+          '이 체크리스트를 통과 못 하면 text를 고쳐서 다시 호출할 것, 그냥 발행하지 말 것.',
         inputSchema: {
           text: z.string().min(1).max(500).describe('발행할 글 내용'),
         },
