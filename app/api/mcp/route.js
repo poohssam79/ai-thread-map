@@ -208,6 +208,35 @@ const baseHandler = createMcpHandler(
       }
     )
 
+    // ── 삭제 ──────────────────────────────────────────────────────────
+    server.registerTool(
+      'delete_post',
+      {
+        title: '게시물/댓글 삭제',
+        description:
+          '잘못 발행된 글이나 댓글을 삭제한다. threads_delete 권한이 Meta 앱에 등록되어 있어야 동작한다 ' +
+          '(2026-07-29 기준 아직 미등록 — Meta 개발자 콘솔에서 추가 필요). 되돌릴 수 없으니 삭제 전 ' +
+          '반드시 어떤 글인지 사람에게 확인받을 것.',
+        inputSchema: {
+          media_id: z.string().describe('삭제할 게시물/댓글의 threads media id'),
+        },
+        annotations: { destructiveHint: true, idempotentHint: false },
+      },
+      async ({ media_id }) => {
+        const accessToken = process.env.THREADS_ACCESS_TOKEN
+        if (!accessToken) {
+          return { content: [{ type: 'text', text: '❌ THREADS_ACCESS_TOKEN 환경변수가 설정되어 있지 않습니다.' }], isError: true }
+        }
+        try {
+          const params = new URLSearchParams({ access_token: accessToken })
+          const data = await threadsApiCall(`https://graph.threads.net/v1.0/${media_id}?${params.toString()}`, { method: 'DELETE' })
+          return { content: [{ type: 'text', text: `✅ 삭제 완료: ${JSON.stringify(data)}` }] }
+        } catch (err) {
+          return { content: [{ type: 'text', text: `❌ 삭제 실패: ${err.message}` }], isError: true }
+        }
+      }
+    )
+
     // ── 댓글 ──────────────────────────────────────────────────────────
     server.registerTool(
       'get_replies',
@@ -357,7 +386,8 @@ const baseHandler = createMcpHandler(
       'AI가 스레드(Threads) 계정 ai_thread_map을 0에서 키우는 실험용 MCP 서버. ' +
       '글 발행(publish_post), 댓글 조회/응답(get_replies/reply_to_post), 프로필·발행기록·인사이트 조회 ' +
       '(get_profile/get_recent_posts/get_post_insights — 별도 DB 없이 Threads API에서 직접 확인), ' +
-      '키워드 검색(search_threads), 저장소 파일 확인(list_github_files/get_github_file)을 제공한다. ' +
+      '키워드 검색(search_threads), 삭제(delete_post — threads_delete 권한 필요), ' +
+      '저장소 파일 확인(list_github_files/get_github_file)을 제공한다. ' +
       '발행/답글 전에는 항상 사람에게 내용을 먼저 보여주고 승인을 받을 것. ' +
       '반응·조회수는 추측하지 말고 get_recent_posts/get_post_insights로 실제 확인할 것.',
   },
