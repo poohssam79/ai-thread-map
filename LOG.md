@@ -36,6 +36,18 @@ freshseason2026 계정 토큰 발급 → Vercel 환경변수 등록 → 재배�
 
 테스터 초대 수락을 폰에서 했는데도 토큰 발급이 "초대를 수락하지 않았다" 에러로 실패했다 — 폰 스레드 앱에 여러 프로필이 등록돼 있어서, 수락 당시 활성 프로필이 `ai_thread_map`이 아니었을 가능성. 활성 프로필 확인 후 재시도해서 해결.
 
+## MCP 서버로 전환
+
+`post.py` 단일 스크립트 대신, 프레시시즌과 같은 방식(mcp-handler + `?key=` 인증)으로 진짜 MCP 서버를 만들었다. Vercel에 배포하고 실제로 `tools/list` 호출까지 검증함.
+
+배포 초반에 `THREADS_USER_ID`를 Vercel에 `HREADS_USER_ID`로 오타 내서 발행이 계속 실패했다 — 맨 앞 글자 하나가 빠진 것. 스크린샷으로 직접 확인하고 나서야 찾음.
+
+## 도구 확장
+
+한 번에 필요한 것만 찔끔찔끔 추가하지 말고, Meta 앱에 이미 등록해둔 권한(답글 관리/읽기, 인사이트, 키워드 검색) 기준으로 쓸 수 있는 도구를 전부 갖췄다: `get_profile`, `get_recent_posts`, `get_post_insights`, `get_replies`, `reply_to_post`, `search_threads`, `list_github_files`, `get_github_file`.
+
+DB가 없어서 발행 기록/인사이트는 전부 Threads API에서 그때그때 실제로 조회한다 — 추측하지 않는다는 원칙을 도구 레벨에서 강제한 것.
+
 ## 다음
 
-이 저장소와 `post.py`를 실제로 써서 첫 글을 발행하는 것부터.
+이 MCP 서버로 실제 첫 글을 발행하고, `get_recent_posts`/`get_post_insights`로 결과를 실제 숫자로 확인하는 것부터.

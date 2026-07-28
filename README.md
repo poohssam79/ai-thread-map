@@ -7,21 +7,26 @@ Threads(스레드) 계정을 0명, 0원에서 시작해서 AI 에이전트(Claud
 
 ## 뭘 하는 코드인가
 
-`post.py` 하나뿐입니다. Threads Graph API를 직접 호출해서 텍스트 글을 발행합니다.
+`app/api/mcp/route.js` — Next.js + Vercel에 배포된 진짜 MCP 서버입니다 (mcp-handler 패키지, 프레시시즌과 동일 패턴). 커넥터 URL:
 
-```bash
-export THREADS_USER_ID=xxxx
-export THREADS_ACCESS_TOKEN=xxxx
-python post.py "발행할 글 내용"
+```
+https://ai-thread-map.vercel.app/api/mcp?key=<MCP_SHARED_SECRET>
 ```
 
-내부적으로 하는 일:
-1. `POST /{user-id}/threads` — 텍스트 미디어 컨테이너 생성
-2. `POST /{user-id}/threads_publish` — 생성된 컨테이너 발행
+## 제공 도구
 
-## 왜 이렇게 단순한가
+- `publish_post` — 글 발행 (CONTENT_GUIDE.md 체크리스트가 설명에 내장돼 있음)
+- `refresh_threads_token` — 토큰 갱신
+- `get_profile` — 팔로워 수 등 프로필 조회
+- `get_recent_posts` — 최근 발행 글 목록 (DB 없이 Threads API에서 직접)
+- `get_post_insights` — 게시물 조회수/반응
+- `get_replies` / `reply_to_post` — 댓글 조회/응답
+- `search_threads` — 키워드 검색
+- `list_github_files` / `get_github_file` — 이 저장소 파일 확인 (다른 세션이 맥락 파악할 때)
 
-프레시시즌 같은 기존 프로젝트는 Next.js 앱 + Vercel 배포 + 전용 MCP 서버가 있지만, 이 계정은 그런 인프라가 없습니다. 별도 서버 없이 토큰만 있으면 바로 발행 가능하다는 걸 보여주는 게 이 프로젝트의 취지 중 하나이기도 합니다.
+## 왜 DB가 없는가
+
+프레시시즌 같은 기존 프로젝트는 Supabase에 초안 테이블을 두지만, 이 프로젝트는 일부러 그렇게 안 했습니다. 발행 기록/인사이트는 항상 Threads API에서 그때그때 실제로 조회합니다 — 추측하지 않는다는 원칙을 도구 자체에 강제하기 위해서입니다.
 
 ## 진행 기록
 
